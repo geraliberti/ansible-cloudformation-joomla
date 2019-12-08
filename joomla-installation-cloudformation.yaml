@@ -219,6 +219,17 @@ LaunchConfiguration:
      InstanceMonitoring: true
      KeyName: !Ref KeyName
      SecurityGroups: !Ref ServerSecurityGroupEC2
+     
+ASGpolicy:
+  Type: AWS::AutoScaling::ScalingPolicy
+  Properties: 
+    AdjustmentType: PercentChangeInCapacity
+    AutoScalingGroupName: !Ref Autoscaling
+    MetricAggregationType: Average
+    MinAdjustmentMagnitude: 2
+    TargetTrackingConfiguration:
+      PredefinedMetricSpecification:
+        PredefinedMetricType: ASGAverageCPUUtilization
 
 LoadBalancer:
   Type: AWS::ElasticLoadBalancingV2::LoadBalancer
