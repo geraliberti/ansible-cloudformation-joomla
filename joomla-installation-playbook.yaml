@@ -1,0 +1,112 @@
+- hosts: target1
+  name: creating AMI for Joomla
+  vars:
+    - Joomla_Version: "3-8-10-Stable-Full_Package"
+
+  tasks:
+      - name: apache installation
+        become: true
+        apt: name=apache2 update_cache=yes state=latest
+
+      - name: components installation
+        become: true
+        apt: name={{ item }}
+        with_items:
+          - git
+          - mysql-server
+          - php
+          - libapache2-mod-php
+          - php-cli
+          - php-common
+          - php-mbstring
+          - php-gd
+          - php-intl
+          - php-xml
+          - php-mysql
+          - php-zip
+          - php-curl
+          - php-xmlrpc
+          - python3
+
+      - name: download cloudwatch logs agent
+        uri:
+          url: https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py
+          dest: /home/ec2-user
+
+      - name: install cloudwatch logs agent
+        script: /home/ec2-user/awslogs-agent-setup.py --region eu-west-1
+        args:
+          executable: python3
+
+      - name: configure the cloudwatch logs agent to send logs to log group
+        blockinfile:
+          path: /etc/awslogs/awslogs.conf
+          block: |
+            [{{ item.path }}/{{ item.file }}]
+            datetime_format = %b %d %H:%M:%S
+            file = /var/log/{{ item }}
+            buffer_duration = 5000
+            log_stream_name = {{ instanceid }}/{{ item.path }}/{{ item.file }}
+            initial_position = start_of_file
+            log_group_name = joomla-log-group
+          with_items:
+            - path: /var/log
+              file: messages
+            - path: /var/log
+              file: secure
+            - path: /var/log
+              file: cron
+            - path: /var/www/html/joomla
+              file: logs
+
+      - name: enable and start agent
+        systemd:
+          name: awslogd
+          enabled: yes
+          state: started
+
+      - name: create user and group for joomla
+        user:
+         name: www-data
+        become: true
+        become_user: root
+
+      - name: download and unzip the joomla installation file
+        unarchive:
+         src: https://downloads.joomla.org/cms/joomla3/3-8-10/Joomla_{{ Joomla_Version }}.zip
+         dest: /var/www/html/joomla
+         remote_src: yes
+
+      - name: copy htaccess.txt to .htaccess
+        copy:
+          src: /var/www/html/joomla/htaccess.txt
+          dest: /var/www/html/joomla/.htaccess
+
+      - name: changing ownership/access mode of the installation dir.
+        file:
+          path: /var/www/html/joomla
+          state: directory
+          recurse: yes
+          owner: www-data
+          group: www-data
+          mode: '0755'
+        notify: restart apache2
+
+      - name: retrieve instance-id of target (will be needed to launch the AMI creation command)
+        command: aws ec2 describe-instances --query 'Reservations[0].Instances[0].InstanceId' --output text --region eu-west-1 --filter Name=tag:Role,Values=Target
+        register: instanceid
+
+  handlers:
+   - name: restart apache2
+     service:
+       name: apache2
+       state: restarted
+
+- hosts: localhost
+  name: create AMI of the newly created instance
+  tasks:
+    - name: create ami
+      ec2_ami:
+        instance_id: {{ instanceid }}
+        wait: yes
+        name: AMI-Joomla
