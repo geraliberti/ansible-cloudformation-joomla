@@ -274,9 +274,21 @@ CloudwatchJoomla_4xx:
     AlarmName: 'Too many 4xx http responses received'
     AlarmActions: !Ref AlarmNotificationTopic
     DatapointsToAlarm: 3
+    Namespace: AWS/EC2
     MetricName: HTTP4xxErrors
     Period: 300
     Threshold: 10
+    
+ CloudwatchCPU_Alarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: 'CPU Threshold is over 70%'
+    AlarmActions: !Ref ASGpolicy
+    DatapointsToAlarm: 3
+    Namespace: AWS/EC2
+    MetricName: CPUUtilization
+    Period: 300
+    Threshold: 70  
 
 # SNS
 
