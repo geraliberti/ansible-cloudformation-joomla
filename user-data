@@ -1,0 +1,24 @@
+UserData:
+  '#!/bin/bash
+  #UserData will execute all the commands with sudo automatically
+  apt-get update
+  #install apache
+  apt-get install apache2
+  #install mysql
+  apt-get install mysql-server
+  #install php
+  apt-get install php libapache2-mod-php
+  apt-get install php-cli php-common php-mbstring php-gd php-intl php-xml php-mysql php-zip php-curl php-xmlrpc
+  #install unzip command
+  apt-get install unzip
+  #install Joomla
+  mkdir /var/www/html/joomla
+  cd /tmp
+  wget https://downloads.joomla.org/cms/joomla3/3-8-10/Joomla_3-8-10-Stable-Full_Package.zip
+  unzip Joomla_3-8-10-Stable-Full_Package.zip  -d /var/www/html/joomla
+  cp /var/www/html/joomla/htaccess.txt /var/www/html/joomla/.htaccess
+  #granting Apache permissions to joomla files
+  chown -R www-data.www-data /var/www/html/joomla
+  chmod -R 755 /var/www/html/joomla
+  #restart apache to take settings
+  systemctl restart apache2'
