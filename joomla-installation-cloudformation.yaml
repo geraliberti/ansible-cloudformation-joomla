@@ -205,7 +205,7 @@ Autoscaling:
       - eu-west-1a
       - eu-west-1b
       - eu-west-1c
-    DesiredCapacity: 4
+    DesiredCapacity: 16
     HealthCheckType: ELB
     LaunchConfigurationName: !Ref LaunchConfiguration
     TargetGroupARNs: !Ref ALBTargetGroup
