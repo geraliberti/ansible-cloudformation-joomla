@@ -16,6 +16,7 @@
 5. Section - Configure stack options: select the following parameter:
                     Instance Type: (default is r3.4xlarge)
                     KeyName: enter "keypair1"
+                    AvailabilityZone: can be choosen between eu-west-1a/b/c
           
 6. Section - Review: just click create
 
@@ -32,11 +33,14 @@
 2. A key pair to access EC2 instance is present, called "keypair1"
 
 3. The estimation of load for the application has been done and 16 instances are required to afford the traffic load
-4. The db will be configured after the installation
+
+4. The solution will be deployed only in region Ireland (eu-west-1)
+
+5. The db will be configured after the installation
             
 I've tried to reduce the installation to only one action (launching the cloudformation stack). The stack will deploy one ansible instance and a target EC2. The ansible instance will then launch a playbook to install the application on the target and to create an AMI from it.
 
-The AMI will be then used in the launch configuration associated to the autoscaling group.
+The created AMI will be then used in the launch configuration associated to the autoscaling group.
  
 # For the requirements of the infra i've thought about the following:
  
