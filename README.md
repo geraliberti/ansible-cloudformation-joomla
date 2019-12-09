@@ -20,7 +20,7 @@
           
 6. Section - Review: just click create
 
-# Assumption: - 
+# Assumptions:
 1. The user launching the stack above is granted role with following policies:
                     CreateStack
                     CreateStackInstances
