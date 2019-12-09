@@ -14,8 +14,11 @@
 4. Section - Specify Stack Details: write the name that will be associated to the stack being created
           
 5. Section - Configure stack options: select the following parameter:
+
                     Instance Type: (default is r3.4xlarge)
+                    
                     KeyName: enter "keypair1"
+                    
                     AvailabilityZone: can be choosen between eu-west-1a/b/c
           
 6. Section - Review: just click create
